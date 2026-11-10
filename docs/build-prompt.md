@@ -1,4 +1,4 @@
-# Prompt สร้างใหม่: BC WareHouse 3D Digital Twin
+# Prompt สร้างใหม่: BC WareHouse 3D Warehouse Simulation
 
 ไฟล์นี้คือ prompt สำเร็จรูปให้ AI เขียนโค้ด (Claude Code / Codex) สร้างเดโม BC WareHouse ขึ้นใหม่ทั้งหมดจากศูนย์
 **คัดลอกทุกอย่างใต้เส้นคั่นไปวางให้ AI**
@@ -8,7 +8,7 @@
 
 # บทบาทและเป้าหมาย
 
-คุณคือวิศวกร front-end + 3D อาวุโส จงสร้างเว็บเดโม "BC WareHouse" ดิจิทัลทวินคลังวัสดุก่อสร้าง 3 มิติ ที่ใช้ฟิสิกส์ rigid-body จริง ให้ได้ผลเหมือนสเปกด้านล่างทุกจุด เมื่อเสร็จต้องเปิดดูแล้วรถยก AI ทำงานเองได้ต่อเนื่องโดยไม่ต้องมีคนแตะ
+คุณคือวิศวกร front-end + 3D อาวุโส จงสร้างเว็บเดโม "BC WareHouse" แบบจำลองคลังวัสดุก่อสร้าง 3 มิติ ที่ใช้ฟิสิกส์ rigid-body จริง ให้ได้ผลเหมือนสเปกด้านล่างทุกจุด เมื่อเสร็จต้องเปิดดูแล้วรถยก AI ทำงานเองได้ต่อเนื่องโดยไม่ต้องมีคนแตะ
 
 ## ข้อบังคับเด็ดขาด
 1. ไฟล์เดียว `index.html` (HTML + CSS + `<script type="module">` ในไฟล์เดียว) ห้ามมีไฟล์รูป/โมเดล/เสียงแยก ทุกพื้นผิวสร้างด้วย canvas 2D แบบ procedural (`THREE.CanvasTexture`)
@@ -22,10 +22,11 @@
   "cannon-es": "https://unpkg.com/cannon-es@0.20.0/dist/cannon-es.js" } }</script>
 ```
    ใช้ addons: `OrbitControls`, `RoundedBoxGeometry`, `RoomEnvironment`, `mergeGeometries` (BufferGeometryUtils)
-3. UI ภาษาไทยที่อ่านง่าย (ศัพท์เทคนิค/รหัสเป็นอังกฤษได้) `<html lang="th">` title `BC WareHouse — 3D Construction Material Warehouse Digital Twin`
+3. UI ภาษาไทยที่อ่านง่าย (ศัพท์เทคนิค/รหัสเป็นอังกฤษได้) `<html lang="th">` title `BC WareHouse — 3D Construction Material Warehouse Simulation`
 4. รันจาก static server: `python -m http.server 8765 --bind 127.0.0.1` แล้วเปิด `http://127.0.0.1:8765/index.html` (ห้ามเปิดแบบ file://)
 5. ข้อมูลทั้งหมดเป็นการจำลองในเบราว์เซอร์ ห้ามอ้างหรือทำท่าว่าเชื่อม ERP/WMS จริง (ข้อความ "เชื่อมต่อ WMS แล้ว" ใน log เป็นแค่ฉาก)
-6. ไม่มี secret/อีเมล/IP จริงในโค้ด ไม่มี backend ไม่มี localStorage
+6. ห้ามเรียกระบบว่า Digital Twin / ดิจิทัลทวิน เพราะไม่มีข้อมูลจากคลังจริงเชื่อมอัตโนมัติ (ตามนิยาม ISO 23247-1 และ Kritzinger 2018 ระบบนี้คือ Digital Model) ให้เรียก "แบบจำลองคลังสินค้า 3 มิติ (3D Simulation)"
+7. ไม่มี secret/อีเมล/IP จริงในโค้ด ไม่มี backend ไม่มี localStorage
 
 ## หน่วยและแกน
 เมตร, +X ตะวันออก, +Z ใต้, Y ขึ้น. ทิศหัวรถ: yaw หมุน +X รอบ +Y → forward = (cos ψ, 0, −sin ψ); `yawOfDir(dx,dz)=atan2(−dz,dx)`. `DT = 1/60`.
@@ -160,8 +161,8 @@ PerspectiveCamera fov 30, near 0.5 far 420, เริ่ม (36,44,50) มอง
 
 ## 18. UI ทั้งหมด (Tailwind + glass)
 สไตล์ `.glass` = rgba(255,255,255,.74) blur 18px saturate 170%; พื้นหลัง radial เทา-ฟ้า; ปุ่ม `.btn` ลอยเมื่อ hover; toggle/range แบบ custom สีน้ำเงิน #2563eb; ฟอนต์ตัวเลข tabular
-- **Loader** เต็มจอ โลโก้ shimmer + `BC WareHouse Digital Twin` + แถบความคืบหน้า ข้อความไทยตามขั้น: `กำลังโหลดฟอนต์และพื้นผิว…`(8) → `กำลังสร้างอาคารคลังสินค้าและท่าเทียบรถ…`(28) → `กำลังสร้างสินค้าวัสดุก่อสร้างและสายพาน…`(48) → `กำลังวางแผนเส้นทาง AI และจัดรถโฟล์คลิฟท์…`(70) → `กำลังอุ่นเครื่องฟิสิกส์…`(92) → `พร้อมใช้งาน`(100); ถ้า error แสดง `เกิดข้อผิดพลาด: …`
-- **Top bar** (left/right 16, top 12, สูง 56): โลโก้ + `BC WareHouse` / `WMS · DIGITAL TWIN`; ช่องค้นหา (ป้ายคีย์ลัดมุมขวา **`/`**); ปุ่ม `Main Warehouse (North Hub - WH-01)`; จุดเขียวกะพริบ `Live HH:MM`; `NN FPS · NN Hz physics` (แสดงเมื่อจอ ≥ xl); กระดิ่งมีจุดส้ม; อวาตาร์ `DK` `Daniel Kim` / `Warehouse Manager`
+- **Loader** เต็มจอ โลโก้ shimmer + `BC WareHouse 3D Simulation` + แถบความคืบหน้า ข้อความไทยตามขั้น: `กำลังโหลดฟอนต์และพื้นผิว…`(8) → `กำลังสร้างอาคารคลังสินค้าและท่าเทียบรถ…`(28) → `กำลังสร้างสินค้าวัสดุก่อสร้างและสายพาน…`(48) → `กำลังวางแผนเส้นทาง AI และจัดรถโฟล์คลิฟท์…`(70) → `กำลังอุ่นเครื่องฟิสิกส์…`(92) → `พร้อมใช้งาน`(100); ถ้า error แสดง `เกิดข้อผิดพลาด: …`
+- **Top bar** (left/right 16, top 12, สูง 56): โลโก้ + `BC WareHouse` / `WMS · 3D SIMULATION`; ช่องค้นหา (ป้ายคีย์ลัดมุมขวา **`/`**); ปุ่ม `Main Warehouse (North Hub - WH-01)`; จุดเขียวกะพริบ `Live HH:MM`; `NN FPS · NN Hz physics` (แสดงเมื่อจอ ≥ xl); กระดิ่งมีจุดส้ม; อวาตาร์ `DK` `Daniel Kim` / `Warehouse Manager`
 - **KPI cards** (left 16, top 76, 4 ใบ กว้าง 212): `Pending Orders` (+12%, "คำสั่งซื้อรอดำเนินการ · vs yesterday"), `Ready Pallets` (+24%, "พาเลทพร้อมส่ง · out of 120 today"), `Active Forklifts` (แถบ 6 ช่อง), `Preparation Rate` (วงแหวน, "อัตราจัดเตรียม · target 80%")
 - **Physics Control · ควบคุมฟิสิกส์** (left 16, top 196, กว้าง 268, พับได้): segmented `Autonomous AI Fleet | Manual Drive`; แถว "ขับรถคัน"; `Collider Debug View · กล่องชน/CoM/ray`; `Conveyor Speed` (0.60 m/s); `Forklift Payload Mass` (100–2500 ก้าว 25 เริ่ม 1225 แสดง `1,225 kg`, คำอธิบาย "มวลพาเลทที่ Drop Test และพาเลทบนงาของรถที่กำลังขับ"); ปุ่ม `Drop Test · ปูน` (ส้ม) / `Reset Scene`; มิเตอร์ 4 ช่อง `FPS / BODIES / CONTACTS / STEP ms` (STEP แสดง 1 ทศนิยม + " ms")
 - **Sales Order inspector** (right 16, top 76, กว้าง 340): `SALES ORDER` / `Order #SO-45821` + ป้ายสถานะ `Preparing | Loading | Dispatched`; Customer, Destination `ไซต์งาน Bang Na · BKK-07`, Priority `High Priority`, ETA `HH:MM (≈ N min)` (หลังออก `ออกจากคลังแล้ว`); แถบ `Pallets prepared` `N / 5 pallets (P%)`; `Picking zone` (slot ต้นทาง PICK ถัดไป / `Dock 01` / `—`), `Items` `{skus} SKUs · {units} units`, ข้อความรายการสินค้า `ปูนซีเมนต์ 50 กก. · อิฐมวลเบา · อิฐแดง · ท่อ PVC · เหล็กข้ออ้อย · สีทาอาคาร`, `Team` (`Team Blue · 3 staff` + จุดสี); ปุ่ม `Locate` (บินไปพาเลทของงานโฟกัส หรือ home) / `Route` (สลับแสดงเส้นทางทุกคัน↔เฉพาะงานโฟกัส) / `Expedite`
@@ -215,7 +216,7 @@ PerspectiveCamera fov 30, near 0.5 far 420, เริ่ม (36,44,50) มอง
 ---
 
 # Acceptance checklist (ตรวจได้ในเบราว์เซอร์)
-1. เปิดหน้าแล้ว loader หายภายในไม่กี่วินาที, console ไม่มี error, แสดงชื่อ `BC WareHouse` และ `WMS · DIGITAL TWIN`
+1. เปิดหน้าแล้ว loader หายภายในไม่กี่วินาที, console ไม่มี error, แสดงชื่อ `BC WareHouse` และ `WMS · 3D SIMULATION`
 2. UI ไทยอ่านออกครบ; ฟอนต์ Inter + Noto Sans Thai โหลด
 3. มี Rack 4 แถว A1 A2 B1 B2 ป้ายปลายแถวและรหัสหน้าคาน เช่น `A2-03`; ค้นหา `A2-03` บินกล้องไปที่ช่อง
 4. ป้าย Dock `01 · DOCK · ขาออก` และ `02 · DOCK · ขาเข้า` เห็นที่ผนังตะวันตก
@@ -257,7 +258,7 @@ PerspectiveCamera fov 30, near 0.5 far 420, เริ่ม (36,44,50) มอง
 
 # ข้อความแบรนด์ที่ใช้ในแอป (คัดลอกตามนี้ ห้ามแต่งเพิ่ม)
 แอปนี้ **ไม่มี footer** ห้ามเพิ่ม; ข้อความแบรนด์ที่มีจริง:
-- `<title>`: `BC WareHouse — 3D Construction Material Warehouse Digital Twin`
-- meta description: `BC WareHouse: ดิจิทัลทวินคลังวัสดุก่อสร้าง 3 มิติ พร้อมฟิสิกส์ rigid-body จริง (Three.js + cannon-es) รถยก AI, สายพานลำเลียง และแดชบอร์ดแบบ glassmorphism`
-- Loader: `BC WareHouse Digital Twin`; แถบบน: `BC WareHouse` / `WMS · DIGITAL TWIN` / `Main Warehouse (North Hub - WH-01)`
+- `<title>`: `BC WareHouse — 3D Construction Material Warehouse Simulation`
+- meta description: `BC WareHouse: แบบจำลองคลังวัสดุก่อสร้าง 3 มิติ พร้อมฟิสิกส์ rigid-body จริง (Three.js + cannon-es) รถยก AI, สายพานลำเลียง และแดชบอร์ดแบบ glassmorphism`
+- Loader: `BC WareHouse 3D Simulation`; แถบบน: `BC WareHouse` / `WMS · 3D SIMULATION` / `Main Warehouse (North Hub - WH-01)`
 - ผนังหลังในฉาก: `BC WareHouse` / `North Hub · WH-01 · คลังวัสดุก่อสร้าง`; ข้างรถบรรทุก: `BC WareHouse Logistics` / `ขนส่งวัสดุก่อสร้าง · TRK-6W 70-1234`; จอแพ็ก: `BC WareHouse · Pack Station 01`
